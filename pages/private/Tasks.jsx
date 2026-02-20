@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { listTasks, createTask, updateTask, deleteTask } from '../../src/api/tasks';
-import '../../src/CSS/pages.css';
+import '../../src/styles/pages.css';
 
 const Tasks = () => {
   const navigate = useNavigate();

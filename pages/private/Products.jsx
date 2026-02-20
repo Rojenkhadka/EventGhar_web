@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { listProducts, createProduct, updateProduct, deleteProduct } from '../../src/api/products';
-import '../../src/CSS/pages.css';
+import '../../src/styles/pages.css';
 
 const uid = () => crypto?.randomUUID?.() ?? String(Date.now());
 

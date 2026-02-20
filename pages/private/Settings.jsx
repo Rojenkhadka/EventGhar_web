@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getMe, updateMe } from '../../src/api/me';
-import '../../src/CSS/pages.css';
+import '../../src/styles/pages.css';
 
 const safeJsonParse = (raw, fallback) => {
   try {

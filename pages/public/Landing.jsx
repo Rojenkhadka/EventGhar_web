@@ -4,7 +4,7 @@ import eventGharLogo from '../../src/assets/images/EventGhar.png';
 import homeImg1 from '../../src/assets/images/home_img1.png';
 import homeImg2 from '../../src/assets/images/home_img2.png';
 import homeImg3 from '../../src/assets/images/home_img3.png';
-import '../../src/CSS/landing.css';
+import '../../src/styles/landing.css';
 
 const Landing = () => {
   const navigate = useNavigate();
@@ -201,7 +201,7 @@ const Landing = () => {
             </div>
             <nav className="landing-nav">
               <a href="/" onClick={(e) => { e.preventDefault(); navigate('/'); }} className="active">Home</a>
-              <a href="/venue" onClick={(e) => { e.preventDefault(); navigate('/venue'); }}>Venue</a>
+              <a href="/events" onClick={(e) => { e.preventDefault(); navigate('/events'); }}>Events</a>
               <button className="landing-navBtn" onClick={() => navigate('/login')}>LOGIN</button>
               <button className="landing-navBtn landing-navBtnPrimary" onClick={() => navigate('/register')}>SIGNUP</button>
             </nav>
@@ -248,7 +248,7 @@ const Landing = () => {
             <div className="landing-searchBox">
               <button 
                 className="landing-searchBtn" 
-                onClick={() => navigate('/venue')}
+                onClick={() => navigate('/events')}
                 style={{
                   background: 'rgba(26, 26, 26, 0.8)',
                   backdropFilter: 'blur(10px)',

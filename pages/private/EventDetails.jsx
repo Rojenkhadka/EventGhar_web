@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import { getEvent, updateEvent } from '../../src/api/events';
 
 const EventDetails = () => {
   const { eventId } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [event, setEvent] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -54,7 +55,11 @@ const EventDetails = () => {
         status: String(form.status || 'Scheduled').toUpperCase(),
       });
       setEvent(updated);
-      navigate('/events');
+      if (location.state && location.state.from === 'organizer-my-events') {
+        navigate('/organizer/dashboard', { state: { tab: 'My Events' } });
+      } else {
+        navigate(-1);
+      }
     } catch (err) {
       setError(err?.message || 'Failed to save event.');
     } finally {
@@ -80,7 +85,13 @@ const EventDetails = () => {
               {error ? error : <>No event exists with id: <code>{String(eventId)}</code></>}
             </p>
           </div>
-          <button className="eg-btn" type="button" onClick={() => navigate('/events')}>Back to events</button>
+          <button className="eg-btn" type="button" onClick={() => {
+            if (location.state && location.state.from === 'organizer-my-events') {
+              navigate('/organizer/dashboard', { state: { tab: 'My Events' } });
+            } else {
+              navigate(-1);
+            }
+          }}>Back to events</button>
         </div>
       </div>
     );
@@ -94,7 +105,13 @@ const EventDetails = () => {
           <p className="eg-subtitle">Review and update event information.</p>
         </div>
         <div style={{ display: 'flex', gap: 8, flexWrap: 'wrap' }}>
-          <button className="eg-btn" type="button" onClick={() => navigate('/events')}>Back</button>
+          <button className="eg-btn" type="button" onClick={() => {
+            if (location.state && location.state.from === 'organizer-my-events') {
+              navigate('/organizer/dashboard', { state: { tab: 'My Events' } });
+            } else {
+              navigate(-1);
+            }
+          }}>Back</button>
         </div>
       </div>
 
@@ -191,7 +208,13 @@ const EventDetails = () => {
                   <button className="eg-btn eg-btnPrimary" type="submit" disabled={saving}>
                     {saving ? 'Saving…' : 'Save changes'}
                   </button>
-                  <button className="eg-btn" type="button" onClick={() => navigate('/events')} disabled={saving}>
+                  <button className="eg-btn" type="button" onClick={() => {
+                    if (location.state && location.state.from === 'organizer-my-events') {
+                      navigate('/organizer/dashboard', { state: { tab: 'My Events' } });
+                    } else {
+                      navigate(-1);
+                    }
+                  }} disabled={saving}>
                     Cancel
                   </button>
                 </div>
