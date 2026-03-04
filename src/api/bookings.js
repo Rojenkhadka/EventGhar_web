@@ -19,3 +19,9 @@ export const getPublicEvents = async () => {
   const res = await api.get('/api/events/public');
   return res;
 };
+
+// Organizer: Get bookings for a specific event
+export const getEventBookings = async (eventId) => {
+  const res = await api.get(`/api/bookings/event/${eventId}`);
+  return res.bookings || [];
+};

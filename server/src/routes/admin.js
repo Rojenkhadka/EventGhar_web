@@ -17,7 +17,11 @@ router.use(requireAdmin);
 router.get('/users', async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT id, full_name, email, role, created_at FROM users ORDER BY created_at DESC'
+      `SELECT id, full_name, email, role, created_at,
+              COALESCE(is_blocked, false) AS is_blocked,
+              profile_pic
+       FROM users
+       ORDER BY created_at DESC`
     );
 
     res.json({
@@ -27,11 +31,44 @@ router.get('/users', async (req, res) => {
         email: user.email,
         role: user.role,
         createdAt: user.created_at,
+        blocked: user.is_blocked,
+        isActive: !user.is_blocked,
+        profilePic: user.profile_pic || null,
       })),
     });
   } catch (error) {
     console.error('Get users error:', error);
     res.status(500).json({ message: 'Failed to fetch users' });
+  }
+});
+
+// Block / Unblock a user
+router.patch('/users/:userId/block', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { blocked } = req.body;
+
+    if (typeof blocked !== 'boolean') {
+      return res.status(400).json({ message: '"blocked" must be a boolean' });
+    }
+
+    const result = await pool.query(
+      'UPDATE users SET is_blocked = $1, updated_at = NOW() WHERE id = $2 RETURNING id, full_name, is_blocked',
+      [blocked, userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const u = result.rows[0];
+    res.json({
+      message: blocked ? 'User blocked successfully' : 'User unblocked successfully',
+      user: { id: u.id, fullName: u.full_name, blocked: u.is_blocked, isActive: !u.is_blocked },
+    });
+  } catch (error) {
+    console.error('Block/unblock user error:', error);
+    res.status(500).json({ message: 'Failed to update user status' });
   }
 });
 
@@ -112,6 +149,58 @@ router.get('/stats', async (req, res) => {
   } catch (error) {
     console.error('Get stats error:', error);
     res.status(500).json({ message: 'Failed to fetch statistics' });
+  }
+});
+
+// Weekly registrations analytics (last 7 days + previous week for comparison)
+router.get('/analytics/weekly-registrations', async (req, res) => {
+  try {
+    // Fetch counts for the last 14 days so we can build current 7-day and previous 7-day windows
+    const result = await pool.query(
+      `SELECT date_trunc('day', created_at) AS day, COUNT(*) AS cnt
+       FROM users
+       WHERE created_at >= NOW() - INTERVAL '14 days'
+       GROUP BY day
+       ORDER BY day ASC`
+    );
+
+    // Build a map of YYYY-MM-DD -> count
+    const countsMap = new Map();
+    result.rows.forEach(r => {
+      const key = r.day.toISOString().slice(0, 10);
+      countsMap.set(key, parseInt(r.cnt, 10));
+    });
+
+    // Prepare last 14 days array (oldest -> newest)
+    const days = [];
+    for (let i = 13; i >= 0; i--) {
+      const d = new Date();
+      d.setUTCHours(0, 0, 0, 0);
+      d.setDate(d.getDate() - i);
+      const key = d.toISOString().slice(0, 10);
+      days.push({ day: key, count: countsMap.get(key) || 0 });
+    }
+
+    const prev7 = days.slice(0, 7).map(d => d.count);
+    const last7 = days.slice(7).map(d => d.count);
+
+    const sum = arr => arr.reduce((a, b) => a + b, 0);
+    const total = sum(last7);
+    const prevTotal = sum(prev7) || 1; // avoid div by zero
+    const changePct = Math.round(((total - prevTotal) / prevTotal) * 10000) / 100;
+
+    res.json({
+      weekly: {
+        days: days.slice(7).map(d => d.day),
+        counts: last7,
+        total,
+        prevTotal: sum(prev7),
+        changePct
+      }
+    });
+  } catch (error) {
+    console.error('Weekly registrations analytics error:', error);
+    res.status(500).json({ message: 'Failed to fetch weekly registrations analytics' });
   }
 });
 

@@ -12,6 +12,20 @@ const RequireAuth = ({ children }) => {
   return children;
 };
 
+function getDashboardRoute() {
+  const raw = localStorage.getItem('eventghar_current_user');
+  let role = 'USER';
+  try {
+    role = JSON.parse(raw)?.role || 'USER';
+  } catch {}
+  switch (role) {
+    case 'ADMIN': return '/admin/dashboard';
+    case 'ORGANIZER': return '/organizer/dashboard';
+    case 'USER':
+    default: return '/user/dashboard';
+  }
+}
+
 function App() {
   return (
     <ThemeProvider>
@@ -31,11 +45,14 @@ function App() {
             />
           ))}
 
+          {/* Role-based dashboard redirect */}
+          <Route path="/dashboard" element={<Navigate to={getDashboardRoute()} replace />} />
+
           {/* Convenience redirects */}
-          <Route path="/login" element={<Navigate to="/" replace />} />
+          {/* Note: /login is handled as a public route above */}
 
           {/* 404 */}
-          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+          <Route path="*" element={<Navigate to={getDashboardRoute()} replace />} />
         </Routes>
       </Suspense>
     </ThemeProvider>

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { listFeedback, createFeedback, updateFeedback, deleteFeedback } from '../../src/api/feedback';
-import '../../src/CSS/pages.css';
+import '../../src/styles/pages.css';
 
 const uid = () => crypto?.randomUUID?.() ?? String(Date.now());
 

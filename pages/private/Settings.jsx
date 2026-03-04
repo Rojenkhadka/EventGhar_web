@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getMe, updateMe } from '../../src/api/me';
-import '../../src/CSS/pages.css';
+import '../../src/styles/pages.css';
 
 const safeJsonParse = (raw, fallback) => {
   try {
@@ -75,64 +75,75 @@ const Settings = () => {
   };
 
   return (
-    <div className="eg-page" style={{ maxWidth: 900 }}>
-      <div className="eg-heading">
-        <div>
-          <h1 className="eg-title">Settings</h1>
-          <p className="eg-subtitle">Manage your profile.</p>
+    <div className="settings-panel-container">
+      <div className="settings-header-container">
+        <div className="settings-header">
+          <h2 className="settings-title">Settings</h2>
         </div>
-        <button className="eg-btn" type="button" onClick={() => navigate('/dashboard')}>Back to dashboard</button>
+        <div className="settings-tabs">
+          <button className="settings-tab-button active">Profile</button>
+          <button className="settings-tab-button" disabled>Security</button>
+          <button className="settings-tab-button" disabled>Payout Info</button>
+          <button className="settings-tab-button" disabled>Notifications</button>
+        </div>
       </div>
-
-      <section className="eg-card" style={{ marginTop: 12 }}>
-        <div className="eg-cardHeader">
-          <h2>Profile</h2>
-        </div>
-        <div className="eg-cardBody">
-          {loading ? (
-            <div className="eg-muted">Loading...</div>
-          ) : (
-            <div className="eg-form">
-              <label>
-                Full name
-                <input className="eg-input" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="e.g. Alex Sharma" />
-              </label>
-              <label>
-                Email
-                <input className="eg-input" value={email} disabled />
-                <div className="eg-muted" style={{ marginTop: 6 }}>Email is managed by your account provider.</div>
-              </label>
-              {error ? <div className="eg-alert" style={{ fontSize: 13 }}>{error}</div> : null}
-              <div className="eg-actions">
-                <button className="eg-btn eg-btnPrimary" type="button" onClick={saveProfile}>Save changes</button>
-                <button className="eg-btn" type="button" onClick={() => navigate('/dashboard')}>Cancel</button>
+      <div className="settings-content">
+        <div className="settings-two-column-layout">
+          {/* Profile Photo Column */}
+          <div className="settings-profile-column">
+            <div className="settings-profile-pic-container">
+              <div className="settings-profile-pic no-image">
+                {/* Placeholder for profile image, replace with actual image if available */}
+                <span style={{ fontSize: 60 }}>👤</span>
               </div>
+              <button className="settings-camera-button" title="Change profile photo">
+                <span role="img" aria-label="camera" style={{ fontSize: 22 }}>📷</span>
+              </button>
             </div>
-          )}
-        </div>
-      </section>
-
-      <section className="eg-card" style={{ marginTop: 12 }}>
-        <div className="eg-cardHeader">
-          <h2>Security</h2>
-        </div>
-        <div className="eg-cardBody">
-          <div className="eg-form">
-            <label>
-              Current password
-              <input className="eg-input" type="password" value={currentPassword} onChange={(e) => setCurrentPassword(e.target.value)} placeholder="Enter current password" />
-            </label>
-            <label>
-              New password
-              <input className="eg-input" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} placeholder="Choose a new password" />
-            </label>
-            {error ? <div className="eg-alert" style={{ fontSize: 13 }}>{error}</div> : null}
-            <div className="eg-actions">
-              <button className="eg-btn eg-btnPrimary" type="button" onClick={changePassword}>Update password</button>
-            </div>
+            <button className="settings-change-photo-button">Change Profile Photo</button>
+          </div>
+          {/* Form Column */}
+          <div className="settings-form-column">
+            <form className="settings-form" onSubmit={e => { e.preventDefault(); saveProfile(); }}>
+              {loading ? (
+                <div className="eg-muted">Loading...</div>
+              ) : (
+                <>
+                  <div className="settings-form-group">
+                    <label className="settings-label">Full Name</label>
+                    <input className="settings-input" value={fullName} onChange={e => setFullName(e.target.value)} placeholder="e.g. Alex Sharma" />
+                  </div>
+                  <div className="settings-form-group">
+                    <label className="settings-label">Email Address</label>
+                    <input className="settings-input" value={email} disabled />
+                    <div className="eg-muted" style={{ marginTop: 6 }}>Email is managed by your account provider.</div>
+                  </div>
+                  {error ? <div className="settings-error-message">{error}</div> : null}
+                  <div className="settings-button-container">
+                    <button className="settings-save-button" type="submit">Save changes</button>
+                    <button className="eg-btn" type="button" style={{ marginLeft: 12 }} onClick={() => navigate('/dashboard')}>Cancel</button>
+                  </div>
+                </>
+              )}
+            </form>
+            {/* Security Section (collapsed for now, can be expanded as needed) */}
+            <form className="settings-form" style={{ marginTop: 32 }} onSubmit={e => { e.preventDefault(); changePassword(); }}>
+              <div className="settings-form-group">
+                <label className="settings-label">Current Password</label>
+                <input className="settings-input" type="password" value={currentPassword} onChange={e => setCurrentPassword(e.target.value)} placeholder="Enter current password" />
+              </div>
+              <div className="settings-form-group">
+                <label className="settings-label">New Password</label>
+                <input className="settings-input" type="password" value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Choose a new password" />
+              </div>
+              {error ? <div className="settings-error-message">{error}</div> : null}
+              <div className="settings-button-container">
+                <button className="settings-save-button" type="submit">Update password</button>
+              </div>
+            </form>
           </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 };
