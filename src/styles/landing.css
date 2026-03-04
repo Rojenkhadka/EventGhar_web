@@ -1117,10 +1117,10 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 96px;
   border-radius: 12px;
   box-shadow: var(--landing-shadow-hover);
   transition: transform 0.3s ease;
+  overflow: hidden;
 }
 
 .landing-featured:hover .landing-featuredImage {

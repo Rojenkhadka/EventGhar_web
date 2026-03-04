@@ -17,7 +17,11 @@ router.use(requireAdmin);
 router.get('/users', async (req, res) => {
   try {
     const result = await pool.query(
-      'SELECT id, full_name, email, role, created_at FROM users ORDER BY created_at DESC'
+      `SELECT id, full_name, email, role, created_at,
+              COALESCE(is_blocked, false) AS is_blocked,
+              profile_pic
+       FROM users
+       ORDER BY created_at DESC`
     );
 
     res.json({
@@ -27,11 +31,44 @@ router.get('/users', async (req, res) => {
         email: user.email,
         role: user.role,
         createdAt: user.created_at,
+        blocked: user.is_blocked,
+        isActive: !user.is_blocked,
+        profilePic: user.profile_pic || null,
       })),
     });
   } catch (error) {
     console.error('Get users error:', error);
     res.status(500).json({ message: 'Failed to fetch users' });
+  }
+});
+
+// Block / Unblock a user
+router.patch('/users/:userId/block', async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { blocked } = req.body;
+
+    if (typeof blocked !== 'boolean') {
+      return res.status(400).json({ message: '"blocked" must be a boolean' });
+    }
+
+    const result = await pool.query(
+      'UPDATE users SET is_blocked = $1, updated_at = NOW() WHERE id = $2 RETURNING id, full_name, is_blocked',
+      [blocked, userId]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    const u = result.rows[0];
+    res.json({
+      message: blocked ? 'User blocked successfully' : 'User unblocked successfully',
+      user: { id: u.id, fullName: u.full_name, blocked: u.is_blocked, isActive: !u.is_blocked },
+    });
+  } catch (error) {
+    console.error('Block/unblock user error:', error);
+    res.status(500).json({ message: 'Failed to update user status' });
   }
 });
 

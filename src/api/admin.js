@@ -6,6 +6,11 @@ export const getAllUsers = async () => {
   return res;
 };
 
+export const blockUser = async (userId, blocked) => {
+  const res = await api.patch(`/api/admin/users/${userId}/block`, { blocked });
+  return res;
+};
+
 export const updateUserRole = async (userId, role) => {
   const res = await api.put(`/api/admin/users/${userId}/role`, { role });
   return res;
@@ -51,5 +56,10 @@ export const approveEvent = async (eventId) => {
 
 export const rejectEvent = async (eventId) => {
   const res = await api.patch(`/api/events/${eventId}/reject`, {});
+  return res;
+};
+
+export const deleteEventAdmin = async (eventId) => {
+  const res = await api.del(`/api/events/${eventId}`);
   return res;
 };

@@ -13,11 +13,35 @@ const Tasks = React.lazy(() => import('../../pages/private/Tasks.jsx'));
 const Feedback = React.lazy(() => import('../../pages/private/Feedback.jsx'));
 const Settings = React.lazy(() => import('../../pages/private/Settings.jsx'));
 
+// Wrapper to pass currentUser prop to AdminDashboard
+const AdminDashboardWithUser = () => {
+  const currentUser = React.useMemo(() => {
+    try {
+      return JSON.parse(localStorage.getItem('eventghar_current_user') || '{}');
+    } catch {
+      return {};
+    }
+  }, []);
+  return <AdminDashboard currentUser={currentUser} />;
+};
+
+// Wrapper to pass currentUser prop to OrganizerDashboard
+const OrganizerDashboardWithUser = () => {
+  const currentUser = React.useMemo(() => {
+    try {
+      return JSON.parse(localStorage.getItem('eventghar_current_user') || '{}');
+    } catch {
+      return {};
+    }
+  }, []);
+  return <OrganizerDashboard currentUser={currentUser} />;
+};
+
 export const privateRoutes = [
   { path: '/dashboard', element: <Dashboard /> },
-  { path: '/admin/dashboard', element: <AdminDashboard /> },
+  { path: '/admin/dashboard', element: <AdminDashboardWithUser /> },
   { path: '/user/dashboard', element: <UserDashboard /> },
-  { path: '/organizer/dashboard', element: <OrganizerDashboard /> },
+  { path: '/organizer/dashboard', element: <OrganizerDashboardWithUser /> },
   { path: '/events', element: <Events /> },
   { path: '/events/:eventId', element: <EventDetails /> },
   { path: '/products', element: <Products /> },

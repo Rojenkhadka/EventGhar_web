@@ -17,12 +17,19 @@ router.get('/', authenticateToken, async (req, res) => {
     const result = await pool.query(`
       SELECT 
         b.*,
+        e.id as eid,
         e.title as event_title,
         e.date as event_date,
+        e.time as event_time,
         e.location as event_location,
-        e.status as event_status
+        e.image as event_image,
+        e.description as event_description,
+        e.status as event_status,
+        e.max_attendees as event_max_attendees,
+        u.full_name as organizer_name
       FROM bookings b
-      JOIN events e ON b.event_id = e.id
+      LEFT JOIN events e ON b.event_id = e.id
+      LEFT JOIN users u ON e.user_id = u.id
       WHERE b.user_id = $1
       ORDER BY b.created_at DESC
     `, [userId]);
@@ -33,12 +40,28 @@ router.get('/', authenticateToken, async (req, res) => {
         eventId: booking.event_id,
         eventTitle: booking.event_title,
         eventDate: booking.event_date,
+        eventTime: booking.event_time,
         eventLocation: booking.event_location,
+        eventImage: booking.event_image,
         eventStatus: booking.event_status,
+        eventMaxAttendees: booking.event_max_attendees,
+        organizerName: booking.organizer_name,
         status: booking.status,
         attendeeCount: booking.attendee_count,
         notes: booking.notes,
         createdAt: booking.created_at,
+        event: {
+          id: booking.event_id,
+          title: booking.event_title,
+          date: booking.event_date,
+          time: booking.event_time,
+          location: booking.event_location,
+          image: booking.event_image,
+          description: booking.event_description,
+          status: booking.event_status,
+          maxAttendees: booking.event_max_attendees,
+          organizerName: booking.organizer_name,
+        },
       })),
     });
   } catch (error) {
@@ -124,6 +147,29 @@ router.post('/', authenticateToken, async (req, res) => {
 
     if (existingBooking.rows.length > 0) {
       return res.status(400).json({ message: 'You have already booked this event' });
+    }
+
+    // Check available capacity
+    const maxAttendees = eventCheck.rows[0].max_attendees;
+    if (maxAttendees) {
+      const soldTickets = await pool.query(
+        `SELECT COALESCE(SUM(attendee_count), 0)::int as total_sold 
+         FROM bookings 
+         WHERE event_id = $1 AND status = 'CONFIRMED'`,
+        [eventId]
+      );
+      
+      const totalSold = soldTickets.rows[0].total_sold;
+      const requestedCount = attendeeCount || 1;
+      
+      if (totalSold + requestedCount > maxAttendees) {
+        const availableSeats = maxAttendees - totalSold;
+        return res.status(400).json({ 
+          message: availableSeats > 0 
+            ? `Only ${availableSeats} seat(s) remaining. Cannot book ${requestedCount} ticket(s).`
+            : 'All tickets are sold out for this event'
+        });
+      }
     }
 
     // Create booking

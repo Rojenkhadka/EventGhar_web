@@ -83,6 +83,27 @@ const EventDetailsModal = ({ event, onClose }) => {
   if (event.date) {
     const d = new Date(event.date);
     dateStr = d.toLocaleDateString();
+  }
+  if (event.time) {
+    // event.time is stored as "HH:MM:SS" or "HH:MM" — format it nicely
+    const match = String(event.time).match(/(\d{1,2}):(\d{2})(?::\d{2})?\s*(AM|PM)?/i);
+    if (match) {
+      let h = parseInt(match[1], 10);
+      const min = match[2];
+      const ap = match[3];
+      if (ap) {
+        if (ap.toUpperCase() === 'PM' && h < 12) h += 12;
+        if (ap.toUpperCase() === 'AM' && h === 12) h = 0;
+      }
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      const displayH = (h % 12 || 12).toString().padStart(2, '0');
+      timeStr = `${displayH}:${min} ${ampm}`;
+    } else {
+      timeStr = event.time;
+    }
+  } else if (event.date) {
+    // Fallback: derive from date only if no dedicated time field
+    const d = new Date(event.date);
     timeStr = d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
   return (

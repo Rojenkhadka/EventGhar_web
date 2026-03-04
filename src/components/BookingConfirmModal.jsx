@@ -1,4 +1,3 @@
-
 import React from 'react';
 
 const overlayStyle = {
@@ -83,8 +82,27 @@ const confirmBtnStyle = {
   transition: 'background 0.15s',
 };
 
-const BookingConfirmModal = ({ event, open, onConfirm, onCancel, loading }) => {
+const errorStyle = {
+  width: '100%',
+  background: '#fee2e2',
+  color: '#991b1b',
+  border: '1px solid #fecaca',
+  borderRadius: 8,
+  padding: '10px 14px',
+  marginBottom: 14,
+  fontWeight: 600,
+  fontSize: 15,
+  textAlign: 'center',
+};
+
+const BookingConfirmModal = ({ event, open, onConfirm, onCancel, loading, error }) => {
   if (!open || !event) return null;
+  
+  const maxAttendees = event.maxAttendees || 0;
+  const ticketsSold = event.ticketsSold || 0;
+  const availableSeats = maxAttendees - ticketsSold;
+  const isSoldOut = maxAttendees > 0 && availableSeats <= 0;
+  
   return (
     <div style={overlayStyle}>
       <div style={modalStyle}>
@@ -93,9 +111,36 @@ const BookingConfirmModal = ({ event, open, onConfirm, onCancel, loading }) => {
           Are you sure you want to book <strong>{event.title}</strong>?
         </div>
         <div style={organizerStyle}>By {event.organizerName}</div>
+        {error && <div style={errorStyle}>{error}</div>}
+        {maxAttendees > 0 && (
+          <div style={{ 
+            width: '100%', 
+            padding: '10px 14px', 
+            borderRadius: 8, 
+            background: isSoldOut ? '#fee2e2' : availableSeats <= 10 ? '#fef3c7' : '#dcfce7',
+            border: `1px solid ${isSoldOut ? '#fecaca' : availableSeats <= 10 ? '#fde68a' : '#bbf7d0'}`,
+            marginBottom: 16,
+            fontSize: 14,
+            fontWeight: 600,
+            color: isSoldOut ? '#991b1b' : availableSeats <= 10 ? '#92400e' : '#065f46'
+          }}>
+            {isSoldOut ? '⚠️ All tickets sold out!' : `🎫 ${availableSeats} / ${maxAttendees} seats available`}
+          </div>
+        )}
         <div style={buttonRowStyle}>
           <button onClick={onCancel} style={cancelBtnStyle} disabled={loading}>Cancel</button>
-          <button onClick={onConfirm} style={confirmBtnStyle} disabled={loading}>{loading ? 'Booking...' : 'Confirm'}</button>
+          <button 
+            onClick={onConfirm} 
+            style={{
+              ...confirmBtnStyle,
+              opacity: isSoldOut ? 0.5 : 1,
+              cursor: isSoldOut || loading ? 'not-allowed' : 'pointer',
+              background: isSoldOut ? '#94a3b8' : '#2563eb'
+            }} 
+            disabled={loading || isSoldOut}
+          >
+            {loading ? 'Booking...' : isSoldOut ? 'Sold Out' : 'Confirm'}
+          </button>
         </div>
       </div>
     </div>

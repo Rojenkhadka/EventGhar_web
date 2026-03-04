@@ -1,17 +1,91 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { X } from 'lucide-react';
+import { X, MapPin } from 'lucide-react';
 import { EventSchema } from '../pages/private/schema/event.schema';
 import ReactDOM from 'react-dom';
 
 const MODAL_ROOT_ID = 'modal-root';
 
 const CreateEventForm = ({ onSubmit, onCancel, defaultValues = {}, errors = {} }) => {
-  const { register, handleSubmit, formState } = useForm({
+  const { register, handleSubmit, formState, setValue } = useForm({
     resolver: zodResolver(EventSchema),
     defaultValues,
   });
+
+  const [locationSuggestions, setLocationSuggestions] = useState([]);
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const [locationInput, setLocationInput] = useState(defaultValues?.venue || '');
+  const locationInputRef = useRef(null);
+  const suggestionsRef = useRef(null);
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        suggestionsRef.current &&
+        !suggestionsRef.current.contains(event.target) &&
+        locationInputRef.current &&
+        !locationInputRef.current.contains(event.target)
+      ) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Simulated location search (replace with actual API in production)
+  const searchLocations = async (query) => {
+    if (!query || query.length < 2) {
+      setLocationSuggestions([]);
+      return;
+    }
+
+    // Popular venues in Nepal for demo - replace with actual Google Places API
+    const venues = [
+      { name: 'Kathmandu Durbar Square', address: 'Basantapur, Kathmandu' },
+      { name: 'Patan Durbar Square', address: 'Mangal Bazaar, Lalitpur' },
+      { name: 'Bhaktapur Durbar Square', address: 'Bhaktapur' },
+      { name: 'Pashupatinath Temple', address: 'Gaushala, Kathmandu' },
+      { name: 'Boudhanath Stupa', address: 'Boudha, Kathmandu' },
+      { name: 'Swayambhunath Temple', address: 'Swayambhu, Kathmandu' },
+      { name: 'Thamel', address: 'Thamel, Kathmandu' },
+      { name: 'City Hall Kathmandu', address: 'Sundhara, Kathmandu' },
+      { name: 'Hyatt Regency', address: 'Taragaon, Boudha, Kathmandu' },
+      { name: 'Hotel Yak & Yeti', address: 'Durbar Marg, Kathmandu' },
+      { name: 'Soaltee Hotel', address: 'Tahachal, Kathmandu' },
+      { name: 'Radisson Hotel', address: 'Lazimpat, Kathmandu' },
+      { name: 'Nagarkot', address: 'Nagarkot, Bhaktapur' },
+      { name: 'Pokhara Lakeside', address: 'Lakeside, Pokhara' },
+      { name: 'Garden of Dreams', address: 'Thamel, Kathmandu' },
+    ];
+
+    const filtered = venues.filter(
+      (venue) =>
+        venue.name.toLowerCase().includes(query.toLowerCase()) ||
+        venue.address.toLowerCase().includes(query.toLowerCase())
+    );
+
+    setLocationSuggestions(filtered);
+  };
+
+  const handleLocationInput = (e) => {
+    const value = e.target.value;
+    setLocationInput(value);
+    setValue('venue', value);
+    searchLocations(value);
+    setShowSuggestions(true);
+  };
+
+  const selectLocation = (venue) => {
+    const fullLocation = `${venue.name}, ${venue.address}`;
+    setLocationInput(fullLocation);
+    setValue('venue', fullLocation);
+    setShowSuggestions(false);
+    setLocationSuggestions([]);
+  };
 
   // Debug: Log when modal is rendered
   console.log('CreateEventForm modal rendered');
@@ -49,9 +123,71 @@ const CreateEventForm = ({ onSubmit, onCancel, defaultValues = {}, errors = {} }
               {formState.errors.time && <span style={{ color: '#ef4444', fontSize: '0.85rem', marginTop: 6, display: 'block' }}>{formState.errors.time.message}</span>}
             </div>
           </div>
-          <div className="org-form-group" style={{ width: '100%' }}>
-            <label htmlFor="venue" style={{ fontWeight: 700, marginBottom: 8, color: '#0f172a', fontSize: '0.95rem' }}>Venue / Location</label>
-            <input id="venue" type="text" placeholder="e.g. Kathmandu City Hall" {...register('venue')} style={{ width: '100%', borderRadius: 10, border: '2px solid #e2e8f0', padding: '14px 18px', fontSize: '1rem', fontFamily: 'inherit', transition: 'all 0.3s' }} />
+          <div className="org-form-group" style={{ width: '100%', position: 'relative' }}>
+            <label htmlFor="venue" style={{ fontWeight: 700, marginBottom: 8, color: '#0f172a', fontSize: '0.95rem', display: 'flex', alignItems: 'center', gap: 6 }}>
+              <MapPin size={16} />
+              Venue / Location
+            </label>
+            <input
+              ref={locationInputRef}
+              id="venue"
+              type="text"
+              placeholder="Search for a venue or location..."
+              value={locationInput}
+              onChange={handleLocationInput}
+              onFocus={() => locationSuggestions.length > 0 && setShowSuggestions(true)}
+              style={{
+                width: '100%',
+                borderRadius: 10,
+                border: '2px solid #e2e8f0',
+                padding: '14px 18px',
+                fontSize: '1rem',
+                fontFamily: 'inherit',
+                transition: 'all 0.3s',
+                paddingRight: 40
+              }}
+            />
+            {showSuggestions && locationSuggestions.length > 0 && (
+              <div
+                ref={suggestionsRef}
+                style={{
+                  position: 'absolute',
+                  top: '100%',
+                  left: 0,
+                  right: 0,
+                  marginTop: 4,
+                  background: '#fff',
+                  border: '2px solid #e2e8f0',
+                  borderRadius: 10,
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+                  maxHeight: 240,
+                  overflowY: 'auto',
+                  zIndex: 1000
+                }}
+              >
+                {locationSuggestions.map((venue, index) => (
+                  <div
+                    key={index}
+                    onClick={() => selectLocation(venue)}
+                    style={{
+                      padding: '12px 16px',
+                      cursor: 'pointer',
+                      borderBottom: index < locationSuggestions.length - 1 ? '1px solid #f1f5f9' : 'none',
+                      transition: 'background 0.2s'
+                    }}
+                    onMouseEnter={(e) => e.currentTarget.style.background = '#f8fafc'}
+                    onMouseLeave={(e) => e.currentTarget.style.background = '#fff'}
+                  >
+                    <div style={{ fontWeight: 600, color: '#0f172a', fontSize: '0.95rem', marginBottom: 2 }}>
+                      {venue.name}
+                    </div>
+                    <div style={{ fontSize: '0.85rem', color: '#64748b' }}>
+                      {venue.address}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
             {formState.errors.venue && <span style={{ color: '#ef4444', fontSize: '0.85rem', marginTop: 6, display: 'block' }}>{formState.errors.venue.message}</span>}
           </div>
           <div className="org-form-group" style={{ width: '100%' }}>

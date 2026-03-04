@@ -27,20 +27,20 @@
 .admin-sidebar {
     width: 260px;
     background: var(--admin-sidebar-gradient);
-    padding: 32px 20px;
+    padding: 28px 20px 16px;
     position: fixed;
-    height: 100vh;
+    top: 64px;
+    height: calc(100vh - 64px);
     color: white;
-    z-index: 100;
+    z-index: 90;
     transition: all 0.3s ease;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
 }
 
 .admin-sidebar-header {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    margin-bottom: 48px;
-    padding: 0 8px;
+    display: none;
 }
 
 .admin-logo-icon {
@@ -90,6 +90,21 @@
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
+.admin-nav-item.logout {
+    margin-top: auto;
+    color: #fff;
+    background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+    font-weight: 800;
+    box-shadow: 0 6px 18px rgba(220, 38, 38, 0.14);
+    border: none;
+    transition: background 0.18s ease, transform 0.12s ease;
+}
+.admin-nav-item.logout:hover {
+    background: linear-gradient(90deg, #dc2626 0%, #b91c1c 100%);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
 .admin-nav-icon {
     width: 20px;
     height: 20px;
@@ -104,6 +119,8 @@
     margin-left: 260px;
     display: flex;
     flex-direction: column;
+    padding-top: 64px;
+    min-height: 100vh;
 }
 
 /* Header / Top Bar */
@@ -179,10 +196,11 @@
 
 /* Dashboard Content */
 .admin-content {
-    padding: 40px;
+    padding: 0 40px 40px 40px;
 }
 
 .admin-overview-header {
+    margin-top: 24px;
     margin-bottom: 32px;
 }
 

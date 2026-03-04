@@ -6,7 +6,6 @@ import { RegisterSchema } from './schema/login.schema';
 import '../../src/styles/auth.css';
 import { registerUser } from '../../src/api/auth';
 import EventGharLogo from '../../src/assets/images/EventGhar.png';
-import AuthIllustration from '../../src/assets/images/home_img2.png';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -38,6 +37,8 @@ const Register = () => {
         role: selectedRole,
       });
 
+      // Clear any stale session data so the new user doesn't inherit previous user's profile
+      try { localStorage.removeItem('eventghar_current_user'); localStorage.removeItem('eventghar_token'); localStorage.removeItem('eventghar_profile_pic'); } catch (e) {}
       setStatus({ type: 'success', message: 'Registration successful! Redirecting to login...' });
       setTimeout(() => navigate('/login'), 800);
     } catch (err) {
@@ -47,15 +48,26 @@ const Register = () => {
 
   return (
     <div className="auth-page">
+      {/* Top Navigation Bar */}
+      <nav className="auth-navbar">
+        <div className="auth-navbar-inner">
+          <div className="auth-navbar-logo" onClick={() => navigate('/')}>
+            <img src={EventGharLogo} alt="EventGhar" />
+            <span className="auth-navbar-brand">EventGhar</span>
+          </div>
+          <div className="auth-navbar-links">
+            <button className="auth-nav-link" onClick={() => navigate('/')}>Home</button>
+            <button className="auth-nav-link" onClick={() => { navigate('/'); setTimeout(() => { const el = document.getElementById('about'); if(el) el.scrollIntoView({behavior:'smooth'}); }, 300); }}>About</button>
+          </div>
+          <div className="auth-navbar-actions">
+            <button className="auth-nav-action auth-nav-login" onClick={() => navigate('/login')}>Log in</button>
+            <button className="auth-nav-action auth-nav-signup" onClick={() => navigate('/register')}>Sign up</button>
+          </div>
+        </div>
+      </nav>
       <div className="auth-card-container">
         {/* Left Side - Form */}
         <div className="auth-form-section">
-          <div className="auth-logo-box">
-            <Link to="/">
-              <img src={EventGharLogo} alt="EventGhar" />
-            </Link>
-          </div>
-
           <div className="auth-header">
             <h1>Create Account</h1>
             <p>Join EventGhar and start exploring events</p>
@@ -171,10 +183,6 @@ const Register = () => {
           </form>
         </div>
 
-        {/* Right Side - Illustration */}
-        <div className="auth-illustration-section">
-          <img src={AuthIllustration} alt="Authentication Illustration" />
-        </div>
       </div>
     </div>
   );

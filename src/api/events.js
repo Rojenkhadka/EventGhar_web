@@ -25,12 +25,18 @@ export async function getEvent(id) {
 }
 
 export async function createEvent(payload) {
-  const data = await api.post('/api/events', payload);
+  // Form sends 'venue'; server expects 'location' — normalise here
+  const { venue, ...rest } = payload;
+  const body = { ...rest, location: rest.location || venue };
+  const data = await api.post('/api/events', body);
   return data.event;
 }
 
 export async function updateEvent(id, payload) {
-  const data = await api.put(`/api/events/${encodeURIComponent(id)}`, payload);
+  // Form sends 'venue'; server expects 'location' — normalise here
+  const { venue, ...rest } = payload;
+  const body = { ...rest, location: rest.location || venue };
+  const data = await api.put(`/api/events/${encodeURIComponent(id)}`, body);
   return data.event;
 }
 

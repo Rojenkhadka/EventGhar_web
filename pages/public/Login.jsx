@@ -6,11 +6,11 @@ import { LoginSchema } from './schema/login.schema';
 import '../../src/styles/auth.css';
 import { loginUser, setAuthSession } from '../../src/api/auth';
 import EventGharLogo from '../../src/assets/images/EventGhar.png';
-import AuthIllustration from '../../src/assets/images/home_img2.png'; // Using a high-quality existing image as illustration
 
 const Login = () => {
   const navigate = useNavigate();
   const [status, setStatus] = useState({ type: 'idle', message: '' });
+  const [isBlocked, setIsBlocked] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
   const {
@@ -34,21 +34,42 @@ const Login = () => {
       setStatus({ type: 'success', message: 'Login successful! Redirecting...' });
       setTimeout(() => navigate('/dashboard'), 300);
     } catch (err) {
-      setStatus({ type: 'error', message: err?.message || 'Login failed.' });
+      console.log('Login error:', err); // Debug log
+      console.log('Error status:', err?.status); // Debug log
+      const msg = err?.message || 'Login failed.';
+      const blocked = err?.status === 403 || msg.toLowerCase().includes('blocked');
+      setIsBlocked(blocked);
+      setStatus({ type: blocked ? 'blocked' : 'error', message: msg });
+      console.log('Is blocked:', blocked); // Debug log
     }
   };
 
   return (
     <div className="auth-page">
+      {/* Top Navigation Bar */}
+      <nav className="auth-navbar">
+        <div className="auth-navbar-inner">
+          <div className="auth-navbar-logo" onClick={() => navigate('/')}>
+            <img src={EventGharLogo} alt="EventGhar" />
+            <span className="auth-navbar-brand">EventGhar</span>
+          </div>
+          <div className="auth-navbar-links">
+            <button className="auth-nav-link" onClick={() => navigate('/')}>Home</button>
+            <button className="auth-nav-link" onClick={() => { navigate('/'); setTimeout(() => { const el = document.getElementById('about'); if(el) el.scrollIntoView({behavior:'smooth'}); }, 300); }}>About</button>
+          </div>
+          <div className="auth-navbar-actions">
+            <button className="auth-nav-action auth-nav-login" onClick={() => navigate('/login')}>Log in</button>
+            <button className="auth-nav-action auth-nav-signup" onClick={() => navigate('/register')}>Sign up</button>
+          </div>
+        </div>
+      </nav>
       <div className="auth-card-container">
         {/* Left Side - Form */}
         <div className="auth-form-section">
-          <div className="auth-logo-box">
-            <Link to="/">
-              <img src={EventGharLogo} alt="EventGhar" />
-            </Link>
+          <div className="auth-card-logo">
+            <img src={EventGharLogo} alt="EventGhar" />
+            <span>EventGhar</span>
           </div>
-
           <div className="auth-header">
             <h1>Welcome Back</h1>
             <p>Login to access your account</p>
@@ -113,7 +134,19 @@ const Login = () => {
             </button>
 
             {status.type !== 'idle' && (
-              <div className={`auth-form-toast ${status.type}`}>{status.message}</div>
+              isBlocked ? (
+                <div className="auth-form-toast blocked" role="alert">
+                  <div style={{ display: 'flex', alignItems: 'flex-start', gap: 10 }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, marginTop: 1 }}><rect width="18" height="11" x="3" y="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <div>
+                      <div style={{ fontWeight: 700, marginBottom: 2 }}>Account Blocked</div>
+                      <div style={{ fontSize: 13 }}>{status.message}</div>
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                <div className={`auth-form-toast ${status.type}`}>{status.message}</div>
+              )
             )}
 
             <div className="auth-divider">or</div>
@@ -129,10 +162,6 @@ const Login = () => {
           </form>
         </div>
 
-        {/* Right Side - Illustration */}
-        <div className="auth-illustration-section">
-          <img src={AuthIllustration} alt="Authentication Illustration" />
-        </div>
       </div>
     </div>
   );

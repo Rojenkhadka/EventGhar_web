@@ -49,7 +49,7 @@ function App() {
           <Route path="/dashboard" element={<Navigate to={getDashboardRoute()} replace />} />
 
           {/* Convenience redirects */}
-          <Route path="/login" element={<Navigate to="/" replace />} />
+          {/* Note: /login is handled as a public route above */}
 
           {/* 404 */}
           <Route path="*" element={<Navigate to={getDashboardRoute()} replace />} />

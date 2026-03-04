@@ -4,6 +4,12 @@ import eventGharLogo from '../../src/assets/images/EventGhar.png';
 import homeImg1 from '../../src/assets/images/home_img1.png';
 import homeImg2 from '../../src/assets/images/home_img2.png';
 import homeImg3 from '../../src/assets/images/home_img3.png';
+import eventImg1 from '../../src/assets/images/event_img1.png';
+import eventImg2 from '../../src/assets/images/event_img2.png';
+import eventImg3 from '../../src/assets/images/event_img3.png';
+import venueImg1 from '../../src/assets/images/venue_img1.png';
+import venueImg2 from '../../src/assets/images/venue_img2.png';
+import venueImg3 from '../../src/assets/images/venue_img3.png';
 import '../../src/styles/landing.css';
 
 const Landing = () => {
@@ -30,24 +36,25 @@ const Landing = () => {
   };
 
   // Expanded categories array for pagination
+  const categoryImages = [eventImg1, eventImg2, eventImg3];
   const allCategories = [
-    { title: 'DESTINATION WEDDINGS', image: '🖼️' },
-    { title: 'HONEYMOON & TRAVEL WEDDING', image: '🖼️' },
-    { title: 'VIDEOGRAPHERS WEDDING', image: '🖼️' },
-    { title: 'CELEBRANT', image: '🖼️' },
-    { title: 'PHOTOGRAPHERS', image: '🖼️' },
-    { title: 'CATERING SERVICES', image: '🖼️' },
-    { title: 'VENUE DECORATION', image: '🖼️' },
-    { title: 'EVENT PLANNING', image: '🖼️' },
-    { title: 'MAKEUP ARTISTS', image: '🖼️' },
-    { title: 'DJ & MUSIC', image: '🖼️' },
-    { title: 'FLORISTS', image: '🖼️' },
-    { title: 'WEDDING CAKES', image: '🖼️' },
-    { title: 'BRIDAL WEAR', image: '🖼️' },
-    { title: 'TRANSPORTATION', image: '🖼️' },
-    { title: 'INVITATION CARDS', image: '🖼️' },
-    { title: 'CHOREOGRAPHERS', image: '🖼️' },
-  ];
+    { title: 'DESTINATION WEDDINGS' },
+    { title: 'HONEYMOON & TRAVEL WEDDING' },
+    { title: 'VIDEOGRAPHERS WEDDING' },
+    { title: 'CELEBRANT' },
+    { title: 'PHOTOGRAPHERS' },
+    { title: 'CATERING SERVICES' },
+    { title: 'VENUE DECORATION' },
+    { title: 'EVENT PLANNING' },
+    { title: 'MAKEUP ARTISTS' },
+    { title: 'DJ & MUSIC' },
+    { title: 'FLORISTS' },
+    { title: 'WEDDING CAKES' },
+    { title: 'BRIDAL WEAR' },
+    { title: 'TRANSPORTATION' },
+    { title: 'INVITATION CARDS' },
+    { title: 'CHOREOGRAPHERS' },
+  ].map((cat, i) => ({ ...cat, image: categoryImages[i % categoryImages.length] }));
 
   const handleSeeMoreCategories = () => {
     setVisibleCategories(prev => Math.min(prev + 3, allCategories.length));
@@ -57,19 +64,21 @@ const Landing = () => {
     setVisibleCategories(3);
   };
 
+  const venueImages = [venueImg1, venueImg2, venueImg3];
   const venues = [
-    { title: 'LOREM IPSUM RESORT', location: 'MALDIVES', image: '🖼️' },
-    { title: 'LOREM IPSUM RESORT', location: 'INDIA', image: '🖼️' },
-    { title: 'LOREM IPSUM RESORT', location: 'ABU DHABI', image: '🖼️' },
-    { title: 'LOREM IPSUM RESORT', location: 'DUBAI', image: '🖼️' },
-  ];
+    { title: 'LOREM IPSUM RESORT', location: 'MALDIVES' },
+    { title: 'LOREM IPSUM RESORT', location: 'INDIA' },
+    { title: 'LOREM IPSUM RESORT', location: 'ABU DHABI' },
+    { title: 'LOREM IPSUM RESORT', location: 'DUBAI' },
+  ].map((v, i) => ({ ...v, image: venueImages[i % venueImages.length] }));
   
+  const mediaImages = [eventImg1, eventImg2, eventImg3, venueImg1];
   const mediaItems = [
     { title: 'LOREM IPSUM', description: 'Lorem ipsum dolor sit amet, consectetur' },
     { title: 'LOREM IPSUM', description: 'Lorem ipsum dolor sit amet, consectetur' },
     { title: 'LOREM IPSUM', description: 'Lorem ipsum dolor sit amet, consectetur' },
     { title: 'LOREM IPSUM', description: 'Lorem ipsum dolor sit amet, consectetur' },
-  ];
+  ].map((m, i) => ({ ...m, image: mediaImages[i] }));
 
   // Animation keyframes
   const animations = `
@@ -317,7 +326,9 @@ const Landing = () => {
           <div className="landing-grid4">
             {allCategories.slice(0, visibleCategories).map((cat, idx) => (
               <div key={idx} className="landing-card">
-                <div className="landing-cardImage">{cat.image}</div>
+                <div className="landing-cardImage">
+                  <img src={cat.image} alt={cat.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                </div>
                 <div className="landing-cardContent">
                   <h3>{cat.title}</h3>
                 </div>
@@ -342,7 +353,9 @@ const Landing = () => {
           <div className="landing-grid4">
             {venues.map((venue, idx) => (
               <div key={idx} className="landing-card">
-                <div className="landing-cardImage">{venue.image}</div>
+                <div className="landing-cardImage">
+                  <img src={venue.image} alt={venue.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                </div>
                 <div className="landing-cardContent">
                   <div className="landing-cardFooter">
                     <div>
@@ -369,7 +382,9 @@ const Landing = () => {
       <section className="landing-featured animate-featured">
         <div className="landing-container">
           <div className="landing-featuredContent">
-            <div className="landing-featuredImage">🖼️</div>
+            <div className="landing-featuredImage">
+                <img src={homeImg2} alt="Featured" style={{ width: '100%', height: '100%', objectFit: 'cover', borderRadius: 'inherit', display: 'block' }} />
+              </div>
             <div className="landing-featuredText">
               <h2>Lorem ipsum dolor sit amet</h2>
               <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor</p>
@@ -410,7 +425,9 @@ const Landing = () => {
           <div className="landing-grid4">
             {mediaItems.map((item, idx) => (
               <div key={idx} className="landing-mediaCard">
-                <div className="landing-mediaImage">🖼️</div>
+                <div className="landing-mediaImage">
+                  <img src={item.image} alt={item.title} style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
+                </div>
                 <div className="landing-mediaContent">
                   <h3>{item.title}</h3>
                   <p>{item.description}</p>
