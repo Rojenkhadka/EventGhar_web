@@ -1,4 +1,4 @@
-# EventGhar 🎉
+# EventGhar 
 
 EventGhar is a full-stack event management web application built with **React** (frontend) and **Node.js/Express** (backend), using **PostgreSQL** as the database. It allows users to discover and book events, organizers to create and manage events, and admins to moderate the platform.
 
