@@ -2,6 +2,7 @@ import React, { Suspense } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import './App.css'
 import { ThemeProvider } from './context/ThemeContext'
+import PageLoader from './components/PageLoader'
 
 import { publicRoutes } from './routes/publicRoutes'
 import { privateRoutes } from './routes/privateRoutes'
@@ -29,11 +30,19 @@ function getDashboardRoute() {
 function App() {
   return (
     <ThemeProvider>
-      <Suspense fallback={<div style={{ padding: 16 }}>Loading...</div>}>
+      <Suspense fallback={<PageLoader />}>
         <Routes>
           {/* Public */}
           {publicRoutes.map((r) => (
-            <Route key={r.path} path={r.path} element={r.element} />
+            <Route
+              key={r.path}
+              path={r.path}
+              element={
+                <Suspense fallback={<PageLoader />}>
+                  {r.element}
+                </Suspense>
+              }
+            />
           ))}
 
           {/* Private */}
@@ -41,14 +50,19 @@ function App() {
             <Route
               key={r.path}
               path={r.path}
-              element={<RequireAuth>{r.element}</RequireAuth>}
+              element={
+                <RequireAuth>
+                  <Suspense fallback={<PageLoader />}>
+                    {r.element}
+                  </Suspense>
+                </RequireAuth>
+              }
             />
           ))}
 
           {/* Role-based dashboard redirect */}
           <Route path="/dashboard" element={<Navigate to={getDashboardRoute()} replace />} />
 
-          {/* Convenience redirects */}
           {/* Note: /login is handled as a public route above */}
 
           {/* 404 */}
